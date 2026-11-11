@@ -1,0 +1,56 @@
+{
+  "name": "Discrub",
+  // Debian 12 base with Node 22 (project requires Node 18+)
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    // System libraries Cypress needs to run its Electron binary headlessly
+    "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
+      "packages": "xvfb,libgtk-3-0,libgbm1,libnotify4,libnss3,libxss1,libasound2,libxtst6,xauth"
+    }
+  },
+
+  // README: --legacy-peer-deps is required due to a date-fns peer dependency conflict.
+  // Also seed .env from the example (without overwriting) so VITE_DISCORD_TOKEN can be set.
+  "postCreateCommand": "sudo chown node:node node_modules ~/.claude && npm install --legacy-peer-deps && (cp -n .env.example .env || true)",
+
+  "forwardPorts": [3000, 6006],
+  "portsAttributes": {
+    "3000": { "label": "Vite dev server", "onAutoForward": "openBrowser" },
+    "6006": { "label": "Storybook", "onAutoForward": "silent" }
+  },
+
+  // Keep node_modules on a named volume: much faster installs on Windows/macOS bind mounts
+  "mounts": [
+    "source=discrub-node-modules,target=${containerWorkspaceFolder}/node_modules,type=volume",
+    "source=discrub-claude,target=/home/node/.claude,type=volume"
+    // In order to do this we need to create the directory in a Dockerfile; otherwise owner is wrong (and post commands doing chown are too late, extension needs to be up and running to run them).
+    //"source=discrub-vscode-extensions,target=/home/node/.vscode-server/extensions,type=volume"
+  ],
+
+  "containerEnv": {
+    "CYPRESS_CACHE_FOLDER": "/home/node/.cache/Cypress"
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "vitest.explorer",
+        "streetsidesoftware.code-spell-checker",
+        "anthropic.claude-code"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": { "source.fixAll.eslint": "explicit" },
+        "typescript.tsdk": "node_modules/typescript/lib",
+        "eslint.useFlatConfig": true
+      }
+    }
+  },
+
+  "remoteUser": "node"
+}
+
