@@ -83,7 +83,8 @@ export type StoreName =
   | 'history'
   | 'statuslog'
   | 'package'
-  | 'media';
+  | 'media'
+  | 'schedules';
 
 const ALL_STORE_NAMES: readonly StoreName[] = [
   'settings',
@@ -94,6 +95,7 @@ const ALL_STORE_NAMES: readonly StoreName[] = [
   'statuslog',
   'package',
   'media',
+  'schedules',
 ] as const;
 
 /** Maps a logical store name to its per-purpose IndexedDB database name. */

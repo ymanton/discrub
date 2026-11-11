@@ -29,6 +29,7 @@ const ALL_STORES: StoreName[] = [
   'statuslog',
   'package',
   'media',
+  'schedules',
 ];
 
 async function clearAllStores() {
