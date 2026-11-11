@@ -8,6 +8,7 @@ import { clearDMs } from '@features/dm/dmSlice';
 import { clearMessages } from '@features/message/messageSlice';
 import { clearAllWorkspaces } from '@features/workspace/workspaceThunks';
 import { refreshWorkspaces, selectWorkspaceList } from '@features/workspace/workspaceSlice';
+import { clearSchedules } from '@features/schedule/scheduleStore';
 
 export interface StoredFigures {
   workspaces: number;
@@ -43,6 +44,8 @@ export function useSignOut() {
     dispatch(clearMessages());
     // Messages never stay on disk after signing out (2.2.5 workspaces).
     void dispatch(clearAllWorkspaces());
+    // Scheduled exports belong to this account; the next one must not run them.
+    void clearSchedules().catch((error) => console.error('[schedule] could not clear schedules', error));
   };
 
   const requestSignOut = async () => {
