@@ -84,6 +84,12 @@ export default defineConfig(({ mode }) => {
       'import.meta.env.DISCRUB_BRIDGE_ONLY': JSON.stringify(
         process.env.DISCRUB_BRIDGE_ONLY === '1',
       ),
+      // Test switch: VITE_SHORT_SCHEDULE=true adds a 1-minute interval to
+      // scheduled exports so an unpacked build can be checked without waiting
+      // an hour. Off in normal and store builds.
+      'import.meta.env.VITE_SHORT_SCHEDULE': JSON.stringify(
+        process.env.VITE_SHORT_SCHEDULE === 'true' ? 'true' : '',
+      ),
     },
   };
 });

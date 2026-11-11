@@ -478,6 +478,8 @@ npm run build:extension:firefox
 npm run build:extension
 ```
 
+For testing scheduled exports in an unpacked build, `VITE_SHORT_SCHEDULE=true npm run build:extension:chrome` adds a 1-minute interval. The dev server always offers it; store builds never do.
+
 ### Run Tests
 
 ```bash
