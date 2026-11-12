@@ -2149,6 +2149,12 @@
       "bulkStartingDm": "Bulk export: Starting DM {{index}}/{{total}}: {{name}}",
       "bulkFinished": "Bulk export: Finished, {{done}} of {{total}} channels exported, {{failed}} failed",
       "bulkFinishedDm": "Bulk export: Finished, {{done}} of {{total}} conversations exported, {{failed}} failed"
+    },
+    "schedule": {
+      "channel": "Scheduled export: {{name}}, {{count, number}} new messages",
+      "skipped": "Scheduled export: skipped {{name}} this run ({{reason}}); it is tried again next run",
+      "backlog": "Scheduled export: a backlog is left, so the next run starts right away",
+      "retry": "Scheduled export: request for {{name}} failed, retrying in {{seconds}}s (attempt {{attempt}}/{{max}})"
     }
   },
   "rateLimit": {

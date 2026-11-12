@@ -2149,6 +2149,12 @@
       "bulkStartingDm": "Sammelexport: DM {{index}}/{{total}} startet: {{name}}",
       "bulkFinished": "Sammelexport: Fertig, {{done}} von {{total}} Kanälen exportiert, {{failed}} fehlgeschlagen",
       "bulkFinishedDm": "Sammelexport: Fertig, {{done}} von {{total}} Unterhaltungen exportiert, {{failed}} fehlgeschlagen"
+    },
+    "schedule": {
+      "channel": "Geplanter Export: {{name}}, {{count, number}} neue Nachrichten",
+      "skipped": "Geplanter Export: {{name}} in diesem Lauf übersprungen ({{reason}}); beim nächsten Lauf wird es erneut versucht",
+      "backlog": "Geplanter Export: Es ist noch ein Rückstand übrig, daher startet der nächste Lauf sofort",
+      "retry": "Geplanter Export: Anfrage für {{name}} fehlgeschlagen, neuer Versuch in {{seconds}} s (Versuch {{attempt}}/{{max}})"
     }
   },
   "rateLimit": {

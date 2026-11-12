@@ -65,10 +65,10 @@ export type RunEvent =
 
 export interface RunDeps<M extends { id: string }> {
   now(): number;
-  /** One page of `channelId`'s messages after `after`, in any order. */
-  listMessages(channelId: string, after: string): Promise<M[]>;
-  /** Active threads in a server. */
-  listActiveThreads(guildId: string): Promise<ScheduleThread[]>;
+  /** One page of `channelId`'s messages after `after`, in any order. `name` is for the log. */
+  listMessages(channelId: string, after: string, name: string): Promise<M[]>;
+  /** Active threads in a server. `name` is for the log. */
+  listActiveThreads(guildId: string, name: string): Promise<ScheduleThread[]>;
   /** A target's archived threads: all of them, or only the most recent page. */
   listArchivedThreads(target: ScheduleTarget, all: boolean): Promise<ScheduleThread[]>;
   openSink(zipName: string): RunSink;
@@ -152,7 +152,7 @@ export async function runSchedule<M extends { id: string }>(
       const fetchPage = async (after: string): Promise<M[]> => {
         await deps.waitWhilePaused();
         if (checkStop()) throw new Stopped();
-        return deps.listMessages(entry.id, after);
+        return deps.listMessages(entry.id, after, entry.name);
       };
       reachedEnd = true;
       for await (const page of pageForward(fetchPage, entry.after)) {
@@ -208,7 +208,7 @@ export async function runSchedule<M extends { id: string }>(
     if (parents.length > 0) {
       const found: ScheduleThread[] = [];
       try {
-        found.push(...await deps.listActiveThreads(record.scope.guildId));
+        found.push(...await deps.listActiveThreads(record.scope.guildId, record.scope.guildName));
       } catch (error) {
         fail(record.scope.guildId, record.scope.guildName, error);
       }
