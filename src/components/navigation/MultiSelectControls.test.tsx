@@ -93,6 +93,11 @@ describe('MultiSelectControls (Backlog #135)', () => {
     expect(screen.queryByTestId('multi-select-schedule')).not.toBeInTheDocument();
   });
 
+  it('enables Schedule with nothing selected once schedules exist, to reach their list', () => {
+    render(<MultiSelectControls {...baseProps} active onSchedule={() => {}} schedulesExist />);
+    expect(screen.getByTestId('multi-select-schedule')).toBeEnabled();
+  });
+
   it('calls onPurge when Purge is clicked', () => {
     const onPurge = vi.fn();
     render(<MultiSelectControls {...baseProps} active selectedCount={3} onPurge={onPurge} />);

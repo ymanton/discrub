@@ -68,6 +68,8 @@ const toStartPoint = (start: ChannelStart): StartPoint | null => {
  * Sets up a scheduled export of the channels or DMs picked in multi-select:
  * a name, how often it runs, and where each channel starts (full history,
  * from now on, or a date). Below it, the schedules that already exist.
+ * Opened with nothing selected, it shows only that list, so every layout
+ * can reach it from the multi-select bar.
  */
 const ScheduleExportDialog = ({ open, onClose, channels, mode, guild }: ScheduleExportDialogProps) => {
   const { t } = useTranslation();
@@ -75,6 +77,7 @@ const ScheduleExportDialog = ({ open, onClose, channels, mode, guild }: Schedule
   const user = useAppSelector(selectCurrentUser);
   const hasSchedules = useAppSelector(selectSchedules).length > 0;
   const isDm = mode === 'dms';
+  const listOnly = channels.length === 0;
 
   const defaultName = isDm ? t('schedule.dmsName') : guild?.name ?? '';
   const [name, setName] = useState(defaultName);
@@ -147,10 +150,11 @@ const ScheduleExportDialog = ({ open, onClose, channels, mode, guild }: Schedule
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth data-testid="schedule-export-dialog">
       <DialogTitle sx={{ pr: 5 }}>
-        {t('schedule.title')}
+        {listOnly ? t('schedule.listTitle') : t('schedule.title')}
         <DialogCloseIcon onClose={onClose} />
       </DialogTitle>
       <DialogContent>
+        {listOnly ? <ScheduleList /> : (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
           <SelectedChannelsPill channels={channels} mode={isDm ? 'dms' : 'channels'} />
 
@@ -248,9 +252,11 @@ const ScheduleExportDialog = ({ open, onClose, channels, mode, guild }: Schedule
             </>
           )}
         </Box>
+        )}
       </DialogContent>
       <DialogActions>
-        <Button variant="outlined" onClick={onClose}>{t('schedule.cancel')}</Button>
+        <Button variant="outlined" onClick={onClose}>{listOnly ? t('schedule.close') : t('schedule.cancel')}</Button>
+        {!listOnly && (
         <Button
           variant="contained"
           startIcon={<ScheduleIcon />}
@@ -260,6 +266,7 @@ const ScheduleExportDialog = ({ open, onClose, channels, mode, guild }: Schedule
         >
           {t('schedule.create')}
         </Button>
+        )}
       </DialogActions>
     </Dialog>
   );

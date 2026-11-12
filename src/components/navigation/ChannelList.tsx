@@ -49,6 +49,7 @@ import ListSkeleton from '@components/ui/ListSkeleton';
 import EmptyState from '@components/ui/EmptyState';
 import BulkExportDialog from '@containers/ExportView/BulkExportDialog';
 import ScheduleExportDialog from '@components/schedule/ScheduleExportDialog';
+import { selectSchedules } from '@features/schedule/scheduleSlice';
 import BulkPurgeDialog from '@containers/PurgeView/BulkPurgeDialog';
 import BulkEditDialog from '@containers/PurgeView/BulkEditDialog';
 import { useTranslation } from 'react-i18next';
@@ -97,6 +98,7 @@ const ChannelList = ({ filterText = '', queue }: ChannelListProps) => {
   const [multiSelectMode, setMultiSelectMode] = useState(false);
   const [bulkExportOpen, setBulkExportOpen] = useState(false);
   const [scheduleOpen, setScheduleOpen] = useState(false);
+  const schedulesExist = useAppSelector(selectSchedules).length > 0;
   const [bulkPurgeOpen, setBulkPurgeOpen] = useState(false);
   const [bulkEditOpen, setBulkEditOpen] = useState(false);
   const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set());
@@ -380,6 +382,7 @@ const ChannelList = ({ filterText = '', queue }: ChannelListProps) => {
         }
         onExport={() => setBulkExportOpen(true)}
         onSchedule={() => setScheduleOpen(true)}
+        schedulesExist={schedulesExist}
         onPurge={() => setBulkPurgeOpen(true)}
         onEdit={() => setBulkEditOpen(true)}
         onCopyNames={handleCopySelectedNames}

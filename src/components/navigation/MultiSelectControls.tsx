@@ -23,6 +23,8 @@ export interface MultiSelectControlsProps {
   onExport?: () => void;
   /** Open the schedule export dialog. Omit to hide the Schedule button. */
   onSchedule?: () => void;
+  /** Schedules exist, so Schedule opens their list even with nothing selected (every layout can reach it). */
+  schedulesExist?: boolean;
   /** Open the bulk-purge dialog. Omit to hide the Purge button (e.g. ServerList v1). */
   onPurge?: () => void;
   /** Open the bulk-edit dialog (#215). Omit to hide the Edit button (e.g. ServerList / DMList). */
@@ -62,6 +64,7 @@ const MultiSelectControls = ({
   onToggleAll,
   onExport,
   onSchedule,
+  schedulesExist,
   onPurge,
   onEdit,
   onCopyNames,
@@ -130,7 +133,7 @@ const MultiSelectControls = ({
               startIcon={<ScheduleIcon fontSize="small" />}
               onClick={onSchedule}
               aria-label={t('schedule.scheduleSelectedAria', { noun })}
-              disabled={noneSelected}
+              disabled={noneSelected && !schedulesExist}
               data-testid="multi-select-schedule"
               sx={{ textTransform: 'none' }}
             >

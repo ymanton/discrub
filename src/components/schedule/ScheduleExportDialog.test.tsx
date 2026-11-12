@@ -123,6 +123,16 @@ describe('ScheduleExportDialog', () => {
   });
 });
 
+describe('ScheduleExportDialog with nothing selected', () => {
+  it('shows only the list of schedules', () => {
+    open({ channels: [] });
+    expect(screen.getByText('Scheduled exports')).toBeInTheDocument();
+    expect(screen.getByTestId('schedule-list-empty')).toBeInTheDocument();
+    expect(screen.queryByTestId('schedule-create')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('schedule-name')).not.toBeInTheDocument();
+  });
+});
+
 describe('localDateToIso', () => {
   it('reads yyyy-mm-dd as local midnight', () => {
     expect(localDateToIso('2026-03-01')).toBe(new Date(2026, 2, 1).toISOString());
