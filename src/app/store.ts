@@ -21,6 +21,7 @@ import devReducer from '@features/dev/devSlice';
 import supporterReducer from '@features/supporter/supporterSlice';
 import noticeReducer from '@features/appearance/noticeSlice';
 import workspaceReducer from '@features/workspace/workspaceSlice';
+import scheduleReducer from '@features/schedule/scheduleSlice';
 import { workspacePersistenceMiddleware } from '@features/workspace/workspacePersistenceMiddleware';
 
 /**
@@ -49,6 +50,7 @@ export const store = configureStore({
     supporter: supporterReducer,
     notice: noticeReducer,
     workspace: workspaceReducer,
+    schedule: scheduleReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

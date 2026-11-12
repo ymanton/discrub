@@ -348,7 +348,8 @@
       "export": "Export",
       "purge": "Purge",
       "package": "Package",
-      "operation": "Operation"
+      "operation": "Operation",
+      "scheduledExport": "Scheduled export"
     },
     "state": {
       "restBreak": "Resumes in {{time}}, rest break",
@@ -361,7 +362,9 @@
       "discordWaitSentence": "Discord asks for a wait every so often. {{name}} carries on by itself.",
       "storageFull": "Browser storage is full",
       "storageFullSentence": "paused at {{count}}"
-    }
+    },
+    "scheduledExport": "Scheduled export · {{name}}",
+    "pausedScheduledExport": "Paused · Scheduled export · {{name}}"
   },
   "landing": {
     "supporterKeyInactive": "Supporter key no longer active.",
@@ -2154,7 +2157,14 @@
       "channel": "Scheduled export: {{name}}, {{count, number}} new messages",
       "skipped": "Scheduled export: skipped {{name}} this run ({{reason}}); it is tried again next run",
       "backlog": "Scheduled export: a backlog is left, so the next run starts right away",
-      "retry": "Scheduled export: request for {{name}} failed, retrying in {{seconds}}s (attempt {{attempt}}/{{max}})"
+      "retry": "Scheduled export: request for {{name}} failed, retrying in {{seconds}}s (attempt {{attempt}}/{{max}})",
+      "runStarted": "Scheduled export {{name}}: run {{number}} started",
+      "runSaved": "Scheduled export {{name}}: saved {{count, number}} new messages to {{file}}",
+      "runNothingNew": "Scheduled export {{name}}: nothing new",
+      "runSkipped": "Scheduled export {{name}}: {{count}} channels or threads were skipped this run and are tried again next run",
+      "stoppedSignIn": "Scheduled export {{name}} stopped: the sign in expired. Sign in again, then start it from the schedule list",
+      "stoppedRateLimited": "Scheduled export {{name}} stopped: Discord kept rate limiting or refused requests. Start it again later from the schedule list",
+      "runFailed": "Scheduled export {{name}}: the run could not be saved ({{error}}). It is tried again in {{minutes}} minutes"
     }
   },
   "rateLimit": {

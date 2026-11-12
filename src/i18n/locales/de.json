@@ -348,7 +348,8 @@
       "export": "Export",
       "purge": "Purge",
       "package": "Paket",
-      "operation": "Vorgang"
+      "operation": "Vorgang",
+      "scheduledExport": "Geplanter Export"
     },
     "state": {
       "restBreak": "Geht weiter in {{time}}, Pause",
@@ -361,7 +362,9 @@
       "discordWaitSentence": "Discord bittet ab und zu um eine Pause. {{name}} macht danach von selbst weiter.",
       "storageFull": "Der Browserspeicher ist voll",
       "storageFullSentence": "pausiert bei {{count}}"
-    }
+    },
+    "scheduledExport": "Geplanter Export · {{name}}",
+    "pausedScheduledExport": "Pausiert · Geplanter Export · {{name}}"
   },
   "landing": {
     "supporterKeyInactive": "Unterstützerschlüssel ist nicht mehr aktiv.",
@@ -2154,7 +2157,14 @@
       "channel": "Geplanter Export: {{name}}, {{count, number}} neue Nachrichten",
       "skipped": "Geplanter Export: {{name}} in diesem Lauf übersprungen ({{reason}}); beim nächsten Lauf wird es erneut versucht",
       "backlog": "Geplanter Export: Es ist noch ein Rückstand übrig, daher startet der nächste Lauf sofort",
-      "retry": "Geplanter Export: Anfrage für {{name}} fehlgeschlagen, neuer Versuch in {{seconds}} s (Versuch {{attempt}}/{{max}})"
+      "retry": "Geplanter Export: Anfrage für {{name}} fehlgeschlagen, neuer Versuch in {{seconds}} s (Versuch {{attempt}}/{{max}})",
+      "runStarted": "Geplanter Export {{name}}: Lauf {{number}} gestartet",
+      "runSaved": "Geplanter Export {{name}}: {{count, number}} neue Nachrichten in {{file}} gespeichert",
+      "runNothingNew": "Geplanter Export {{name}}: nichts Neues",
+      "runSkipped": "Geplanter Export {{name}}: {{count}} Kanäle oder Threads wurden in diesem Lauf übersprungen und beim nächsten Lauf erneut versucht",
+      "stoppedSignIn": "Geplanter Export {{name}} gestoppt: Die Anmeldung ist abgelaufen. Melde dich erneut an und starte ihn dann in der Zeitplanliste",
+      "stoppedRateLimited": "Geplanter Export {{name}} gestoppt: Discord hat wiederholt Anfragen begrenzt oder abgelehnt. Starte ihn später in der Zeitplanliste erneut",
+      "runFailed": "Geplanter Export {{name}}: Der Lauf konnte nicht gespeichert werden ({{error}}). Neuer Versuch in {{minutes}} Minuten"
     }
   },
   "rateLimit": {

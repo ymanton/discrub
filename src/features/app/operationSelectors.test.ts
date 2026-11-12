@@ -281,6 +281,28 @@ describe('operationSelectors', () => {
     });
   });
 
+  describe('Scheduled export run', () => {
+    const running = (paused = false) => createBaseState({
+      app: { ...createBaseState().app, discrubPaused: paused },
+      schedule: { schedules: [], activeRun: { id: 's1', name: 'Raid', startedAt: 0 } },
+    });
+
+    it('is a heavy operation named after the schedule', () => {
+      const summary = selectOperationSummary(running());
+      expect(summary).toMatchObject({ isRunning: true, tier: 'heavy', label: 'Scheduled export · Raid', name: 'Scheduled export', state: 'running' });
+      expect(selectIsHeavyOperationRunning(running())).toBe(true);
+      expect(selectIsOperationRunning(running())).toBe(true);
+    });
+
+    it('shows as paused', () => {
+      expect(selectOperationSummary(running(true))).toMatchObject({ label: 'Paused · Scheduled export · Raid', state: 'paused' });
+    });
+
+    it('is idle without an active run', () => {
+      expect(selectOperationSummary(createBaseState()).tier).toBe('idle');
+    });
+  });
+
   describe('Package export tier (#162)', () => {
     // Package thunks set `state.package.exportStatus = 'running'` rather
     // than `state.export.isExporting`, so the operation selector needs

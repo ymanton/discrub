@@ -55,6 +55,7 @@ const selectGuildState = (state: RootState) => state.guild;
 const selectDmState = (state: RootState) => state.dm;
 const selectPackageState = (state: RootState) => state.package;
 const selectDevState = (state: RootState) => state.dev;
+const selectScheduleState = (state: RootState) => state.schedule;
 
 /**
  * The parenthetical on the running purge label. "deleted" is always
@@ -70,8 +71,8 @@ const purgeDetailParts = (deleted: number, stripped: number, failed: number): st
 };
 
 const selectBaseSummary = createSelector(
-  [selectExportState, selectMessageState, selectAppState, selectPurgeState, selectChannelState, selectGuildState, selectDmState, selectPackageState, selectDevState],
-  (exportState, messageState, appState, purgeState, channelState, guildState, dmState, packageState, devState): BaseSummary => {
+  [selectExportState, selectMessageState, selectAppState, selectPurgeState, selectChannelState, selectGuildState, selectDmState, selectPackageState, selectDevState, selectScheduleState],
+  (exportState, messageState, appState, purgeState, channelState, guildState, dmState, packageState, devState, scheduleState): BaseSummary => {
     const isPaused = appState.discrubPaused;
 
     // ── HEAVY OPERATIONS (pause/cancel/disable) ──────────────────
@@ -312,6 +313,17 @@ const selectBaseSummary = createSelector(
       return { isRunning: true, isPaused, tier: 'heavy', label: isPaused ? 'Paused · Seeding' : 'Seeding...' };
     }
 
+    // Scheduled export run (heavy: pause, cancel and rest breaks apply to it)
+    const scheduledRun = scheduleState?.activeRun;
+    if (scheduledRun) {
+      return {
+        isRunning: true, isPaused, tier: 'heavy',
+        label: isPaused
+          ? t('operation.pausedScheduledExport', { name: scheduledRun.name })
+          : t('operation.scheduledExport', { name: scheduledRun.name }),
+      };
+    }
+
     // ── LIGHT OPERATIONS (spinner + status log only) ─────────────
 
     // Message loading (initial fetch or load-more pagination)
@@ -356,7 +368,8 @@ const STATE_COLORS: Record<OperationState, OperationStateColor> = {
   idle: 'neutral', running: 'success', paused: 'warning', restBreak: 'warning', retrying: 'info', retryPaused: 'error', discordWait: 'warning', storageFull: 'error',
 };
 
-const operationName = (exportState: RootState['export'], purgeState: RootState['purge'], packageState: RootState['package'], messageState: RootState['message']): string => {
+const operationName = (exportState: RootState['export'], purgeState: RootState['purge'], packageState: RootState['package'], messageState: RootState['message'], scheduleState?: RootState['schedule']): string => {
+  if (scheduleState?.activeRun) return t('operation.names.scheduledExport');
   if (purgeState.isPurging) return t('operation.names.purge');
   if (exportState.isExporting) return t('operation.names.export');
   if (packageState?.exportStatus === 'running' || packageState?.activeEnrichmentChannelId || packageState?.deleteStatus === 'running' || packageState?.bulkDelete?.status === 'running') return t('operation.names.package');
@@ -369,9 +382,9 @@ const operationName = (exportState: RootState['export'], purgeState: RootState['
  * is in, its colour, and the sentence every layout prints under the headline.
  */
 export const selectOperationSummary = createSelector(
-  [selectBaseSummary, selectAppState, selectExportState, selectPurgeState, selectPackageState, selectMessageState],
-  (base, appState, exportState, purgeState, packageState, messageState): OperationSummary => {
-    const name = base.tier === 'heavy' ? operationName(exportState, purgeState, packageState, messageState) : t('operation.names.operation');
+  [selectBaseSummary, selectAppState, selectExportState, selectPurgeState, selectPackageState, selectMessageState, selectScheduleState],
+  (base, appState, exportState, purgeState, packageState, messageState, scheduleState): OperationSummary => {
+    const name = base.tier === 'heavy' ? operationName(exportState, purgeState, packageState, messageState, scheduleState) : t('operation.names.operation');
     if (base.tier !== 'heavy') return { ...base, name, state: base.isRunning ? 'running' : 'idle', stateColor: base.isRunning ? 'success' : 'neutral' };
     const hold = appState.operationHold ?? null;
     const restBreakUntil = appState.restBreakUntil ?? null;

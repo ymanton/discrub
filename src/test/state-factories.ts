@@ -53,6 +53,7 @@ export function createBaseState(overrides?: Partial<RootState>): RootState {
     supporter: { ...initialSupporterState },
     notice: { loaded: true, seenId: null },
     workspace: { ...initialWorkspaceState },
+    schedule: { schedules: [], activeRun: null },
     ...overrides,
   } as RootState;
 }
