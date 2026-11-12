@@ -17,6 +17,10 @@ vi.mock('@features/schedule/scheduleStore', () => ({
   clearSchedules: () => mockClearSchedules(),
 }));
 
+vi.mock('@features/schedule/scheduleSlice', () => ({
+  clearScheduleState: () => ({ type: 'schedule/clearScheduleState' }),
+}));
+
 import { useSignOut } from './useSignOut';
 
 describe('useSignOut', () => {
@@ -29,6 +33,7 @@ describe('useSignOut', () => {
     const { result } = renderHook(() => useSignOut());
     act(() => result.current.signOut());
     expect(mockDispatch).toHaveBeenCalledWith({ type: 'workspace/clearAll' });
+    expect(mockDispatch).toHaveBeenCalledWith({ type: 'schedule/clearScheduleState' });
     expect(mockClearSchedules).toHaveBeenCalledTimes(1);
   });
 
