@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { afterCursorForDate } from './scheduleCursor';
-import { createSchedule, cursorFor, withCursor, withThreads } from './scheduleRecord';
+import { createSchedule, cursorFor, threadHasNew, withCursor, withThreads, withThreadsBackfilled } from './scheduleRecord';
 import type { NewScheduleInput } from './scheduleTypes';
 
 const NOW = Date.parse('2026-11-11T10:00:00Z');
@@ -35,6 +35,10 @@ describe('scheduleRecord', () => {
       expect(record).toMatchObject({
         version: 1, id: 's1', status: 'running', createdAt: NOW, lastRun: null, runCount: 0, threads: {},
       });
+    });
+
+    it('needs no thread backfill for "from now on" targets', () => {
+      expect(createSchedule(input(), 's1', NOW).threadsBackfilled).toEqual(['c-now']);
     });
 
     it('copies the targets so the caller\'s list can change', () => {
@@ -126,6 +130,51 @@ describe('scheduleRecord', () => {
       const renamed = withThreads(once, [{ id: 't1', name: 'renamed', parentId: 'c-full' }]);
       expect(renamed.threads.t1.name).toBe('renamed');
       expect(renamed.cursors.t1).toBe('99');
+    });
+
+    it('keeps the newest last message id', () => {
+      const once = withThreads(record, [{ id: 't1', name: 'a', parentId: 'c-full', lastMessageId: '50' }]);
+      expect(withThreads(once, [{ id: 't1', name: 'a', parentId: 'c-full', lastMessageId: '40' }])).toBe(once);
+      const newer = withThreads(once, [{ id: 't1', name: 'a', parentId: 'c-full', lastMessageId: '60' }]);
+      expect(newer.threads.t1.lastMessageId).toBe('60');
+    });
+
+    it('keeps a known last message id when a listing has none', () => {
+      const once = withThreads(record, [{ id: 't1', name: 'a', parentId: 'c-full', lastMessageId: '50' }]);
+      expect(withThreads(once, [{ id: 't1', name: 'a', parentId: 'c-full' }])).toBe(once);
+    });
+  });
+
+  describe('withThreadsBackfilled', () => {
+    const record = createSchedule(input(), 's1', NOW);
+
+    it('adds targets once', () => {
+      const next = withThreadsBackfilled(record, ['c-full', 'c-now']);
+      expect(next.threadsBackfilled).toEqual(['c-now', 'c-full']);
+      expect(withThreadsBackfilled(next, ['c-full'])).toBe(next);
+    });
+  });
+
+  describe('threadHasNew', () => {
+    const record = withThreads(createSchedule(input(), 's1', NOW), [
+      { id: 't1', name: 'a', parentId: 'c-full', lastMessageId: '50' },
+      { id: 't2', name: 'b', parentId: 'c-full' },
+    ]);
+
+    it('is true when the last message is past the cursor', () => {
+      expect(threadHasNew(record, 't1')).toBe(true);
+    });
+
+    it('is false once the cursor reaches the last message', () => {
+      expect(threadHasNew(withCursor(record, 't1', '50'), 't1')).toBe(false);
+    });
+
+    it('is true when the last message id is unknown', () => {
+      expect(threadHasNew(record, 't2')).toBe(true);
+    });
+
+    it('is false for an unknown thread', () => {
+      expect(threadHasNew(record, 'nope')).toBe(false);
     });
   });
 });

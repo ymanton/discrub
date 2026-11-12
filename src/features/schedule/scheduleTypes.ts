@@ -20,6 +20,8 @@ export interface ScheduleThread {
   id: string;
   name: string;
   parentId: string;
+  /** Newest message id Discord last reported for the thread. A thread whose cursor is here has nothing new. */
+  lastMessageId?: string;
 }
 
 export type ScheduleStatus = 'running' | 'stopped';
@@ -52,6 +54,12 @@ export interface ScheduleRecord {
   targets: ScheduleTarget[];
   /** Threads found so far, by id. */
   threads: Record<string, ScheduleThread>;
+  /**
+   * Targets whose archived threads have all been listed once. A target that
+   * starts from the full history or a date lists them on its first run; a
+   * "from now on" target never needs to.
+   */
+  threadsBackfilled: string[];
   /** `after` cursor of every target and thread, by channel id. */
   cursors: Record<string, string>;
   status: ScheduleStatus;

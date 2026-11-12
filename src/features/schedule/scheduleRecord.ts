@@ -28,6 +28,7 @@ export function createSchedule(input: NewScheduleInput, id: string, now: number)
     intervalMinutes: input.intervalMinutes,
     targets: input.targets.map((t) => ({ ...t })),
     threads: {},
+    threadsBackfilled: input.targets.filter((t) => t.start.kind === 'now').map((t) => t.id),
     cursors,
     status: 'running',
     createdAt: now,
@@ -56,7 +57,16 @@ export function withCursor(record: ScheduleRecord, channelId: string, cursor: st
   return { ...record, cursors: { ...record.cursors, [channelId]: cursor } };
 }
 
-/** Adds threads found under scheduled channels; known ones keep their cursor. */
+const newer = (a: string | undefined, b: string | undefined): string | undefined => {
+  if (a === undefined) return b;
+  if (b === undefined) return a;
+  return compareSnowflakes(a, b) >= 0 ? a : b;
+};
+
+/**
+ * Adds threads found under scheduled channels and updates known ones. A
+ * thread keeps its cursor, and its last message id only moves forward.
+ */
 export function withThreads(record: ScheduleRecord, threads: readonly ScheduleThread[]): ScheduleRecord {
   const targetIds = new Set(record.targets.map((t) => t.id));
   const next = { ...record.threads };
@@ -64,9 +74,27 @@ export function withThreads(record: ScheduleRecord, threads: readonly ScheduleTh
   for (const thread of threads) {
     if (!targetIds.has(thread.parentId)) continue;
     const known = next[thread.id];
-    if (known && known.name === thread.name && known.parentId === thread.parentId) continue;
-    next[thread.id] = { ...thread };
+    const lastMessageId = newer(known?.lastMessageId, thread.lastMessageId);
+    if (known && known.name === thread.name && known.parentId === thread.parentId && known.lastMessageId === lastMessageId) {
+      continue;
+    }
+    next[thread.id] = { id: thread.id, name: thread.name, parentId: thread.parentId, ...(lastMessageId ? { lastMessageId } : {}) };
     changed = true;
   }
   return changed ? { ...record, threads: next } : record;
+}
+
+/** Marks targets whose archived threads have now all been listed. */
+export function withThreadsBackfilled(record: ScheduleRecord, targetIds: readonly string[]): ScheduleRecord {
+  const done = new Set(record.threadsBackfilled);
+  const added = targetIds.filter((id) => !done.has(id));
+  return added.length === 0 ? record : { ...record, threadsBackfilled: [...record.threadsBackfilled, ...added] };
+}
+
+/** True when the thread may have messages after its cursor. */
+export function threadHasNew(record: ScheduleRecord, threadId: string): boolean {
+  const thread = record.threads[threadId];
+  if (!thread) return false;
+  if (!thread.lastMessageId) return true;
+  return compareSnowflakes(thread.lastMessageId, cursorFor(record, threadId)) > 0;
 }
