@@ -53,6 +53,7 @@ import { useRestoreListener } from '@/hooks/useRestoreListener';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { useOperationThrottleOptOut } from '@/hooks/useOperationThrottleOptOut';
 import { useRestBreaks } from '@/hooks/useRestBreaks';
+import { useScheduler } from '@/hooks/useScheduler';
 import Toast from '@components/ui/Toast';
 import { HotkeyProvider, useHotkey } from '@features/hotkeys/HotkeyProvider';
 import { resolveShell } from '@/layouts/registry';
@@ -208,6 +209,7 @@ const MainLayout = () => {
   useWakeLock();
   useOperationThrottleOptOut();
   useRestBreaks();
+  useScheduler();
   useWorkspaceScopeRestore();
 
   // Wait for settings to load before checking the announcement gist —
