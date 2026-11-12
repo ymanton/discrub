@@ -57,7 +57,10 @@ export function deleteSchedule(id: string): Promise<void> {
   return serialize(id, () => storage.schedules.remove(id));
 }
 
-/** Drops every schedule. Used on sign out. */
-export function clearSchedules(): Promise<void> {
-  return storage.schedules.clear();
+/**
+ * Drops every schedule. Used on sign out, so it never throws: a storage
+ * problem comes back as a rejected promise for the caller to log.
+ */
+export async function clearSchedules(): Promise<void> {
+  await storage.schedules.clear();
 }
