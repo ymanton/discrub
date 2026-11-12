@@ -32,6 +32,7 @@ export function createSchedule(input: NewScheduleInput, id: string, now: number)
     cursors,
     status: 'running',
     createdAt: now,
+    nextRunAt: now,
     lastRun: null,
     runCount: 0,
   };

@@ -64,6 +64,8 @@ export interface ScheduleRecord {
   cursors: Record<string, string>;
   status: ScheduleStatus;
   createdAt: number;
+  /** When the next run is due (ms). A new schedule runs straight away. */
+  nextRunAt: number;
   lastRun: ScheduleRunSummary | null;
   runCount: number;
 }
