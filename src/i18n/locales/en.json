@@ -2164,7 +2164,14 @@
       "runSkipped": "Scheduled export {{name}}: {{count}} channels or threads were skipped this run and are tried again next run",
       "stoppedSignIn": "Scheduled export {{name}} stopped: the sign in expired. Sign in again, then start it from the schedule list",
       "stoppedRateLimited": "Scheduled export {{name}} stopped: Discord kept rate limiting or refused requests. Start it again later from the schedule list",
-      "runFailed": "Scheduled export {{name}}: the run could not be saved ({{error}}). It is tried again in {{minutes}} minutes"
+      "runFailed": "Scheduled export {{name}}: the run could not be saved ({{error}}). It is tried again in {{minutes}} minutes",
+      "notify": {
+        "title": "Discrub scheduled export: {{name}}",
+        "signInExpired": "Stopped: the sign in expired. Sign in again and start the schedule.",
+        "rateLimited": "Stopped: Discord kept rate limiting or refused requests. Start the schedule again later.",
+        "skipped": "Skipped this run: {{names}}. Tried again next run.",
+        "failed": "The run could not be saved ({{error}}). Tried again in {{minutes}} minutes."
+      }
     }
   },
   "rateLimit": {

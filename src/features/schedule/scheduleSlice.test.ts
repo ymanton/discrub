@@ -10,6 +10,11 @@ vi.mock('./scheduleRun', async (importOriginal) => {
   return { ...actual, runSchedule: () => mockRunSchedule() };
 });
 vi.mock('./scheduleDeps', () => ({ createRunDeps: () => ({}) }));
+const mockShowNotification = vi.fn(async () => undefined);
+vi.mock('./scheduleNotify', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('./scheduleNotify')>();
+  return { ...actual, showNotification: (...args: unknown[]) => mockShowNotification(...(args as [])) };
+});
 
 import authReducer from '@features/auth/authSlice';
 import userReducer from '@features/user/userSlice';
@@ -62,6 +67,7 @@ describe('scheduleSlice', () => {
   beforeEach(async () => {
     await clearSchedules();
     mockRunSchedule.mockReset();
+    mockShowNotification.mockClear();
   });
 
   it('adds a schedule that is due at once and lists it', async () => {
@@ -133,6 +139,26 @@ describe('scheduleSlice', () => {
       }));
       expect(await store.dispatch(runScheduledExport({ id })).unwrap()).toBe('stopped');
       expect((await getSchedule(id))?.status).toBe('stopped');
+      expect(mockShowNotification).toHaveBeenCalledWith(
+        'Discrub scheduled export: Friends',
+        expect.stringContaining('sign in expired'),
+      );
+    });
+
+    it('notifies about a skipped channel', async () => {
+      const store = makeStore();
+      const { id } = await store.dispatch(addSchedule(input)).unwrap();
+      mockRunSchedule.mockResolvedValue(result({ summary: { startedAt: 1, finishedAt: 2, messages: 0, skipped: ['dm1'] } }));
+      await store.dispatch(runScheduledExport({ id }));
+      expect(mockShowNotification).toHaveBeenCalledWith(expect.any(String), expect.stringContaining('Alice'));
+    });
+
+    it('does not notify about a clean run', async () => {
+      const store = makeStore();
+      const { id } = await store.dispatch(addSchedule(input)).unwrap();
+      mockRunSchedule.mockResolvedValue(result());
+      await store.dispatch(runScheduledExport({ id }));
+      expect(mockShowNotification).not.toHaveBeenCalled();
     });
 
     it('tries again one interval later when the zip fails, keeping the cursors', async () => {
@@ -145,6 +171,7 @@ describe('scheduleSlice', () => {
       expect(saved?.nextRunAt).toBeGreaterThan(Date.now() + 59 * 60 * 1000);
       expect(selectActiveScheduleRun(store.getState() as unknown as RootState)).toBeNull();
       expect(messages(store).some((m) => m.includes('download failed'))).toBe(true);
+      expect(mockShowNotification).toHaveBeenCalledWith(expect.any(String), expect.stringContaining('download failed'));
     });
 
     it('does not run when signed out', async () => {

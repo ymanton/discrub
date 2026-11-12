@@ -12,6 +12,7 @@ import { createRunDeps } from './scheduleDeps';
 import { runZipName } from './scheduleOutput';
 import { nextRunTime, retryRunTime } from './scheduleTiming';
 import { deleteSchedule, getSchedule, listSchedules, saveSchedule, updateSchedule } from './scheduleStore';
+import { alertsForRun, showNotification, type ScheduleAlert } from './scheduleNotify';
 import type { NewScheduleInput, ScheduleRecord } from './scheduleTypes';
 
 /**
@@ -109,6 +110,20 @@ export const removeSchedule = createAsyncThunk<void, { id: string }, ThunkConfig
   },
 );
 
+/** The notification text for an alert. */
+export function alertMessage(alert: ScheduleAlert, intervalMinutes: number): string {
+  switch (alert.kind) {
+    case 'signInExpired':
+      return t('status.schedule.notify.signInExpired');
+    case 'rateLimited':
+      return t('status.schedule.notify.rateLimited');
+    case 'skipped':
+      return t('status.schedule.notify.skipped', { names: alert.names.join(', ') });
+    case 'failed':
+      return t('status.schedule.notify.failed', { error: alert.error, minutes: intervalMinutes });
+  }
+}
+
 export type ScheduleRunOutcome = 'saved' | 'nothingNew' | 'stopped' | 'failed' | 'notRun';
 
 /**
@@ -126,6 +141,8 @@ export const runScheduledExport = createAsyncThunk<ScheduleRunOutcome, { id: str
 
     const log = (level: 'info' | 'success' | 'warning' | 'error', key: string, params: Record<string, unknown> = {}) =>
       dispatch(addStatusEntry({ level, message: t(key, { name: record.name, ...params }) }));
+    const alert = (alerts: ScheduleAlert[]) => Promise.all(alerts.map((a) =>
+      showNotification(t('status.schedule.notify.title', { name: record.name }), alertMessage(a, record.intervalMinutes))));
 
     dispatch(setDiscrubCancelled(false));
     dispatch(setDiscrubPaused(false));
@@ -141,6 +158,7 @@ export const runScheduledExport = createAsyncThunk<ScheduleRunOutcome, { id: str
       }));
 
       const { summary } = result;
+      await alert(alertsForRun(record, result));
       if (summary.skipped.length > 0) log('warning', 'status.schedule.runSkipped', { count: summary.skipped.length });
       if (result.downloaded) {
         log('success', 'status.schedule.runSaved', {
@@ -162,10 +180,9 @@ export const runScheduledExport = createAsyncThunk<ScheduleRunOutcome, { id: str
     } catch (error) {
       await updateSchedule(id, (current) => ({ ...current, nextRunAt: retryRunTime(current.intervalMinutes, Date.now()) }))
         .catch(() => null);
-      log('error', 'status.schedule.runFailed', {
-        error: error instanceof Error ? error.message : String(error),
-        minutes: record.intervalMinutes,
-      });
+      const message = error instanceof Error ? error.message : String(error);
+      log('error', 'status.schedule.runFailed', { error: message, minutes: record.intervalMinutes });
+      await alert([{ kind: 'failed', error: message }]);
       return 'failed';
     } finally {
       dispatch(scheduleRunFinished());

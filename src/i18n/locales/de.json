@@ -2164,7 +2164,14 @@
       "runSkipped": "Geplanter Export {{name}}: {{count}} Kanäle oder Threads wurden in diesem Lauf übersprungen und beim nächsten Lauf erneut versucht",
       "stoppedSignIn": "Geplanter Export {{name}} gestoppt: Die Anmeldung ist abgelaufen. Melde dich erneut an und starte ihn dann in der Zeitplanliste",
       "stoppedRateLimited": "Geplanter Export {{name}} gestoppt: Discord hat wiederholt Anfragen begrenzt oder abgelehnt. Starte ihn später in der Zeitplanliste erneut",
-      "runFailed": "Geplanter Export {{name}}: Der Lauf konnte nicht gespeichert werden ({{error}}). Neuer Versuch in {{minutes}} Minuten"
+      "runFailed": "Geplanter Export {{name}}: Der Lauf konnte nicht gespeichert werden ({{error}}). Neuer Versuch in {{minutes}} Minuten",
+      "notify": {
+        "title": "Discrub geplanter Export: {{name}}",
+        "signInExpired": "Gestoppt: Die Anmeldung ist abgelaufen. Melde dich erneut an und starte den Zeitplan.",
+        "rateLimited": "Gestoppt: Discord hat wiederholt Anfragen begrenzt oder abgelehnt. Starte den Zeitplan später erneut.",
+        "skipped": "In diesem Lauf übersprungen: {{names}}. Neuer Versuch beim nächsten Lauf.",
+        "failed": "Der Lauf konnte nicht gespeichert werden ({{error}}). Neuer Versuch in {{minutes}} Minuten."
+      }
     }
   },
   "rateLimit": {
