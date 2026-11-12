@@ -79,6 +79,20 @@ describe('MultiSelectControls (Backlog #135)', () => {
     expect(onExport).toHaveBeenCalledTimes(1);
   });
 
+  it('calls onSchedule when Schedule is clicked', () => {
+    const onSchedule = vi.fn();
+    render(<MultiSelectControls {...baseProps} active selectedCount={2} onSchedule={onSchedule} />);
+    fireEvent.click(screen.getByTestId('multi-select-schedule'));
+    expect(onSchedule).toHaveBeenCalledTimes(1);
+  });
+
+  it('disables Schedule with nothing selected and hides it without a handler', () => {
+    const { rerender } = render(<MultiSelectControls {...baseProps} active onSchedule={() => {}} />);
+    expect(screen.getByTestId('multi-select-schedule')).toBeDisabled();
+    rerender(<MultiSelectControls {...baseProps} active />);
+    expect(screen.queryByTestId('multi-select-schedule')).not.toBeInTheDocument();
+  });
+
   it('calls onPurge when Purge is clicked', () => {
     const onPurge = vi.fn();
     render(<MultiSelectControls {...baseProps} active selectedCount={3} onPurge={onPurge} />);

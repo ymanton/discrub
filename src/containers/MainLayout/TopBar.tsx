@@ -36,7 +36,7 @@ import {
 } from '@features/supporter/supporterSlice';
 import AppearanceButton from '@components/appearance/AppearanceButton';
 import { CompatibilityPopup, CompatibilitySheet } from '@components/compatibility/CompatibilityPopover';
-import { InfoOutlined as CompatibilityIcon } from '@mui/icons-material';
+import { InfoOutlined as CompatibilityIcon, Schedule as ScheduleIcon } from '@mui/icons-material';
 import { BleedingStack } from '@components/supporter/BleedingTitle';
 import { isBleedingEdgeBuild } from '@services/hostedGate';
 import ProfileWindow from '@components/modals/ProfileWindow';
@@ -430,6 +430,18 @@ const TopBar = ({ onMenuClick }: TopBarProps = {}) => {
                   <CompatibilityIcon fontSize="small" />
                 </ListItemIcon>
                 <ListItemText>{t('topbar.compatibility')}</ListItemText>
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  dispatch(setDialogOpen({ dialog: 'schedules', open: true }));
+                  setMoreMenuAnchor(null);
+                }}
+                data-testid="more-menu-schedules"
+              >
+                <ListItemIcon>
+                  <ScheduleIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>{t('topbar.scheduledExports')}</ListItemText>
               </MenuItem>
               <MenuItem
                 component="a"

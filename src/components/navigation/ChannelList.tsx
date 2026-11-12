@@ -48,6 +48,7 @@ import { showToast } from '@features/status/statusSlice';
 import ListSkeleton from '@components/ui/ListSkeleton';
 import EmptyState from '@components/ui/EmptyState';
 import BulkExportDialog from '@containers/ExportView/BulkExportDialog';
+import ScheduleExportDialog from '@components/schedule/ScheduleExportDialog';
 import BulkPurgeDialog from '@containers/PurgeView/BulkPurgeDialog';
 import BulkEditDialog from '@containers/PurgeView/BulkEditDialog';
 import { useTranslation } from 'react-i18next';
@@ -95,6 +96,7 @@ const ChannelList = ({ filterText = '', queue }: ChannelListProps) => {
 
   const [multiSelectMode, setMultiSelectMode] = useState(false);
   const [bulkExportOpen, setBulkExportOpen] = useState(false);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
   const [bulkPurgeOpen, setBulkPurgeOpen] = useState(false);
   const [bulkEditOpen, setBulkEditOpen] = useState(false);
   const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set());
@@ -377,6 +379,7 @@ const ChannelList = ({ filterText = '', queue }: ChannelListProps) => {
           dispatch(allSelectableSelected ? deselectAllChannels() : selectAllChannels(selectAllChannelsList))
         }
         onExport={() => setBulkExportOpen(true)}
+        onSchedule={() => setScheduleOpen(true)}
         onPurge={() => setBulkPurgeOpen(true)}
         onEdit={() => setBulkEditOpen(true)}
         onCopyNames={handleCopySelectedNames}
@@ -480,6 +483,14 @@ const ChannelList = ({ filterText = '', queue }: ChannelListProps) => {
       </List>
 
       {/* 2.2.0 Operator opens the queue export through the store flag. */}
+      <ScheduleExportDialog
+        open={scheduleOpen}
+        onClose={() => setScheduleOpen(false)}
+        channels={selectedChannels}
+        mode="channels"
+        guild={selectedGuild ? { id: selectedGuild.id, name: selectedGuild.name } : null}
+      />
+
       <BulkExportDialog
         open={bulkExportOpen || exportFromStore}
         onClose={() => { setBulkExportOpen(false); if (exportFromStore) dispatch(setDialogOpen({ dialog: 'bulkExport', open: false })); }}

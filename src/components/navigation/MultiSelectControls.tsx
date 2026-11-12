@@ -4,6 +4,7 @@ import {
   DeleteSweep as PurgeIcon,
   ContentCopy as CopyIcon,
   Edit as EditIcon,
+  Schedule as ScheduleIcon,
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 
@@ -20,6 +21,8 @@ export interface MultiSelectControlsProps {
   onToggleAll: () => void;
   /** Open the bulk-export dialog. Omit to hide the Export button (e.g. ServerList v1). */
   onExport?: () => void;
+  /** Open the schedule export dialog. Omit to hide the Schedule button. */
+  onSchedule?: () => void;
   /** Open the bulk-purge dialog. Omit to hide the Purge button (e.g. ServerList v1). */
   onPurge?: () => void;
   /** Open the bulk-edit dialog (#215). Omit to hide the Edit button (e.g. ServerList / DMList). */
@@ -58,6 +61,7 @@ const MultiSelectControls = ({
   allSelected,
   onToggleAll,
   onExport,
+  onSchedule,
   onPurge,
   onEdit,
   onCopyNames,
@@ -116,6 +120,21 @@ const MultiSelectControls = ({
               sx={{ textTransform: 'none' }}
             >
               {resume?.export ? resumeLabel : t('nav.export')}
+            </Button>
+          )}
+          {onSchedule && (
+            <Button
+              size="small"
+              variant="outlined"
+              color="primary"
+              startIcon={<ScheduleIcon fontSize="small" />}
+              onClick={onSchedule}
+              aria-label={t('schedule.scheduleSelectedAria', { noun })}
+              disabled={noneSelected}
+              data-testid="multi-select-schedule"
+              sx={{ textTransform: 'none' }}
+            >
+              {t('schedule.button')}
             </Button>
           )}
           {onEdit && (

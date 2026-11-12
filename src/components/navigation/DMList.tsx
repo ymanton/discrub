@@ -65,6 +65,7 @@ import ListSkeleton from '@components/ui/ListSkeleton';
 import EmptyState from '@components/ui/EmptyState';
 import { timeAgo } from '@/utils/timeAgo';
 import BulkExportDialog from '@containers/ExportView/BulkExportDialog';
+import ScheduleExportDialog from '@components/schedule/ScheduleExportDialog';
 import BulkPurgeDialog from '@containers/PurgeView/BulkPurgeDialog';
 import BulkEditDialog from '@containers/PurgeView/BulkEditDialog';
 import { t as translate } from '@/i18n';
@@ -259,6 +260,7 @@ const DMList = ({ filterText = '', queue }: DMListProps) => {
 
   const [multiSelectMode, setMultiSelectMode] = useState(false);
   const [bulkExportOpen, setBulkExportOpen] = useState(false);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
   const [bulkPurgeOpen, setBulkPurgeOpen] = useState(false);
   const [bulkEditOpen, setBulkEditOpen] = useState(false);
   const [openByIdOpen, setOpenByIdOpen] = useState(false);
@@ -487,6 +489,7 @@ const DMList = ({ filterText = '', queue }: DMListProps) => {
           )
         }
         onExport={() => setBulkExportOpen(true)}
+        onSchedule={() => setScheduleOpen(true)}
         onPurge={() => setBulkPurgeOpen(true)}
         onEdit={() => setBulkEditOpen(true)}
         onCopyNames={handleCopySelectedNames}
@@ -579,6 +582,13 @@ const DMList = ({ filterText = '', queue }: DMListProps) => {
       {hasMore && <Box ref={sentinelRef} data-testid="dm-list-sentinel" sx={{ height: 1 }} />}
         </>
       )}
+
+      <ScheduleExportDialog
+        open={scheduleOpen}
+        onClose={() => setScheduleOpen(false)}
+        channels={selectedDms}
+        mode="dms"
+      />
 
       <BulkExportDialog
         open={bulkExportOpen || exportFromStore}
