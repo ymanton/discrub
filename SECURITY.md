@@ -22,7 +22,9 @@ via the contacts above so a takedown can be filed.
 
 Facts you can confirm yourself in the manifest of the installed extension:
 
-- **Permissions: `storage` only** — used to persist your settings.
+- **Permissions: `storage` and `notifications` only** — `storage` persists your settings;
+  `notifications` lets a scheduled export tell you when it stopped or skipped a channel.
+  Nothing else shows notifications.
 - **Host access: Discord domains only** (`discord.com`, `discordapp.com`, `discordapp.net`).
   The extension cannot read or contact any other site.
 - **No remote code.** Everything that runs ships inside the reviewed store package; nothing is

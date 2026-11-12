@@ -196,6 +196,7 @@ Upload these 5 images from the \`screenshots/\` folder (resized to 1280x800):
 | Permission | Justification |
 |-----------|---------------|
 | storage | Persisting user settings and preferences |
+| notifications | Telling the user when a scheduled export they set up stopped (sign in expired, rate limited) or skipped a channel |
 | host_permissions (discord.com) | Making Discord API calls and injecting UI on Discord |
 
 ## Submit
