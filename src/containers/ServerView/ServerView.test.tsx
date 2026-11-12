@@ -79,6 +79,7 @@ vi.mock('@/extension/storage', () => {
       statuslog: makeAdapter(),
       package: makeAdapter(),
       media: makeAdapter(),
+      schedules: makeAdapter(),
     },
     migrateAllStorage: vi.fn().mockResolvedValue(undefined),
   };
