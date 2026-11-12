@@ -8,7 +8,7 @@
  */
 const IDB_NAMES = [
   'Discrub-settings', 'Discrub-state', 'Discrub-presets', 'Discrub-cache',
-  'Discrub-history', 'Discrub-statuslog', 'Discrub-package', 'Discrub-media', 'keyval-store',
+  'Discrub-history', 'Discrub-statuslog', 'Discrub-package', 'Discrub-media', 'Discrub-schedules', 'keyval-store',
 ];
 
 const wipeIdb = (win: Window) => {

@@ -68,6 +68,7 @@ const DB_NAMES = [
   'Discrub-statuslog',
   'Discrub-package',
   'Discrub-media',
+  'Discrub-schedules',
   'keyval-store',
 ];
 

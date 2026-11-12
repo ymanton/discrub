@@ -53,7 +53,7 @@ async function signLifetimeKey(): Promise<string> {
 
 const DB_NAMES = [
   'Discrub-settings', 'Discrub-state', 'Discrub-presets', 'Discrub-cache',
-  'Discrub-history', 'Discrub-statuslog', 'Discrub-package', 'Discrub-media',
+  'Discrub-history', 'Discrub-statuslog', 'Discrub-package', 'Discrub-media', 'Discrub-schedules',
   'keyval-store',
 ];
 

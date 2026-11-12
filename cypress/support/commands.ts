@@ -178,6 +178,7 @@ Cypress.Commands.add('login', () => {
         'Discrub-statuslog',
         'Discrub-package',
         'Discrub-media',
+        'Discrub-schedules',
         'Discrub-workspaces',
         'keyval-store',
       ]) {
