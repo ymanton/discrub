@@ -23,6 +23,7 @@ It runs as a **web app** (manual token entry) and as a **Chrome/Firefox extensio
   - [Focus Mode](#focus-mode)
   - [Targeted Help](#targeted-help)
   - [Export](#export)
+  - [Scheduled Export](#scheduled-export)
   - [Purge](#purge)
   - [Reactions](#reactions)
   - [Message Operations](#message-operations)
@@ -153,6 +154,19 @@ Two HTML templates. **Discord Layout** (default) wraps the export in a Discord-l
 
 ![Export Dialog](docs/screenshots/export/export-dialog.png)
 ![Media Settings](docs/screenshots/export/media-settings.png)
+
+### Scheduled Export
+
+Export channels or DMs on a timer, so channels that a bot wipes regularly are saved before each wipe. In multi-select, tick the channels (or DMs) and click **Schedule**. Pick how often it runs (every 15 minutes up to once a day) and where each channel starts: its **full history**, **from now on**, or **from a date**. The first run starts within seconds.
+
+Each run downloads one zip holding only the messages that are new since the last run, as JSON: a folder per channel, its threads and forum posts in a `threads/` folder inside it, and a `manifest.json` that lists what the run covered and which channels it skipped. A run with nothing new downloads nothing. Attachments are kept as links, not downloaded.
+
+- Messages are saved as they are when a run fetches them. A message deleted before the next run is lost, so pick an interval shorter than the gap between wipes. Edits made after a message was saved are not picked up.
+- A long full-history baseline is split into several zips, run back to back, so the other channels in the schedule are still checked on every run.
+- A channel that fails (no access, say) is skipped and tried again next run. An expired sign in, or Discord rate limiting the account, stops the schedule. Either way you get a desktop notification. In the extension this uses the `notifications` permission; the web app asks once when you create a schedule.
+- Runs use the same delays, rest breaks, pause and cancel as every other operation, and wait while another operation runs. Cancel ends the current run; **Stop** in the list ends the schedule.
+- Runs happen while Discrub is open and you are signed in. Keep the tab open. A run that came due while it was closed runs when you come back, and only one window runs schedules at a time.
+- **More > Scheduled exports** (or **Schedule** in multi-select with nothing ticked) lists every schedule with its last and next run, and Stop, Start and Delete. Signing out deletes your schedules.
 
 ### Purge
 
