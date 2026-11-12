@@ -247,6 +247,27 @@ export function createActionMock() {
 }
 
 /**
+ * Create chrome.notifications mock. `create` calls back with the id it was given.
+ */
+export function createNotificationsMock() {
+  const clickListeners: Array<(id: string) => void> = [];
+  return {
+    create: vi.fn((id: string, _options: unknown, callback?: (id: string) => void) => {
+      callback?.(id);
+    }),
+    clear: vi.fn(),
+    onClicked: {
+      addListener: vi.fn((listener: (id: string) => void) => {
+        clickListeners.push(listener);
+      }),
+    },
+    onClosed: { addListener: vi.fn() },
+    /** Test helper: fire a click. */
+    _click: (id: string) => clickListeners.forEach((l) => l(id)),
+  };
+}
+
+/**
  * Create full Chrome API mock
  */
 export function createChromeMocks() {
@@ -255,6 +276,8 @@ export function createChromeMocks() {
     tabs: createTabsMock(),
     storage: createStorageMock(),
     action: createActionMock(),
+    notifications: createNotificationsMock(),
+    windows: { update: vi.fn() },
   };
 }
 

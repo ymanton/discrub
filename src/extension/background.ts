@@ -20,8 +20,15 @@ console.log('[Discrub Background] Background script initialized');
 /**
  * Message handler
  */
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log('[Discrub Background] Received message:', message.action);
+
+  // Extension app → show a scheduled export notification
+  if (message.action === 'showNotification') {
+    showScheduleNotification(String(message.title ?? 'Discrub'), String(message.message ?? ''), sender);
+    sendResponse({ success: true });
+    return;
+  }
 
   // Extension app → request token from content script
   if (message.action === 'requestToken') {
@@ -295,6 +302,42 @@ const openExtensionOverlay = () => {
 };
 
 chrome.action.onClicked.addListener(openExtensionOverlay);
+
+/**
+ * Scheduled export notifications. The app runs in a frame inside the Discord
+ * tab, where browsers do not allow web notifications, so it asks here.
+ * Clicking one brings that Discord tab to the front.
+ */
+const notificationTabs = new Map<string, { tabId: number; windowId?: number }>();
+let notificationSeq = 0;
+
+function showScheduleNotification(title: string, message: string, sender: chrome.runtime.MessageSender): void {
+  if (!chrome.notifications?.create) return;
+  notificationSeq += 1;
+  const id = `discrub-schedule-${Date.now()}-${notificationSeq}`;
+  chrome.notifications.create(
+    id,
+    { type: 'basic', iconUrl: chrome.runtime.getURL('icons/icon-128.png'), title, message },
+    (createdId) => {
+      if (sender.tab?.id !== undefined) {
+        notificationTabs.set(createdId, { tabId: sender.tab.id, windowId: sender.tab.windowId });
+      }
+    },
+  );
+}
+
+chrome.notifications?.onClicked?.addListener((id) => {
+  const target = notificationTabs.get(id);
+  notificationTabs.delete(id);
+  chrome.notifications.clear(id);
+  if (!target) return;
+  chrome.tabs.update(target.tabId, { active: true });
+  if (target.windowId !== undefined) chrome.windows?.update?.(target.windowId, { focused: true });
+});
+
+chrome.notifications?.onClosed?.addListener((id) => {
+  notificationTabs.delete(id);
+});
 
 /**
  * Extension lifecycle events

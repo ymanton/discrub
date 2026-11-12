@@ -88,6 +88,42 @@ describe('Background Script', () => {
     });
   });
 
+  describe('showNotification message', () => {
+    it('shows a notification and brings the sending Discord tab forward on click', () => {
+      const sendResponse = vi.fn();
+      const tab = createMockTab({ id: 7, windowId: 3 });
+      mockChrome.runtime.getURL = vi.fn((path: string) => `chrome-extension://id/${path}`) as any;
+
+      messageListener({ action: 'showNotification', title: 'Discrub', message: 'Stopped' }, { tab }, sendResponse);
+
+      expect(sendResponse).toHaveBeenCalledWith({ success: true });
+      expect(mockChrome.notifications.create).toHaveBeenCalledWith(
+        expect.stringMatching(/^discrub-schedule-/),
+        { type: 'basic', iconUrl: 'chrome-extension://id/icons/icon-128.png', title: 'Discrub', message: 'Stopped' },
+        expect.any(Function),
+      );
+
+      const id = (mockChrome.notifications.create as any).mock.calls[0][0];
+      mockChrome.notifications._click(id);
+      expect(mockChrome.notifications.clear).toHaveBeenCalledWith(id);
+      expect(mockChrome.tabs.update).toHaveBeenCalledWith(7, { active: true });
+      expect(mockChrome.windows.update).toHaveBeenCalledWith(3, { focused: true });
+    });
+
+    it('gives each notification its own id', () => {
+      messageListener({ action: 'showNotification', title: 'a', message: 'b' }, {}, vi.fn());
+      messageListener({ action: 'showNotification', title: 'a', message: 'c' }, {}, vi.fn());
+      const ids = (mockChrome.notifications.create as any).mock.calls.map((c: any[]) => c[0]);
+      expect(new Set(ids).size).toBe(2);
+    });
+
+    it('a click without a known tab only clears the notification', () => {
+      mockChrome.notifications._click('unknown');
+      expect(mockChrome.notifications.clear).toHaveBeenCalledWith('unknown');
+      expect(mockChrome.tabs.update).not.toHaveBeenCalled();
+    });
+  });
+
   describe('requestToken message', () => {
     it('should query for Discord tabs and forward getToken', () => {
       const sendResponse = vi.fn();

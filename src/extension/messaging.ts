@@ -16,7 +16,8 @@ export type ExtensionMessage =
   | { action: 'minimizeOverlay' }
   | { action: 'restoreOverlay' }
   | { action: 'isOverlayOpen' }
-  | { action: 'ping' };
+  | { action: 'ping' }
+  | { action: 'showNotification'; title: string; message: string };
 
 /**
  * Check if running in extension context
