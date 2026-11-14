@@ -2157,6 +2157,7 @@
     "schedule": {
       "channel": "Geplanter Export: {{name}}, {{count, number}} neue Nachrichten",
       "skipped": "Geplanter Export: {{name}} in diesem Lauf übersprungen ({{reason}}); beim nächsten Lauf wird es erneut versucht",
+      "noActiveThreadList": "Geplanter Export: Discord listet die aktiven Threads von {{name}} für dieses Konto nicht auf, daher werden die Threads jedes Kanals einzeln abgefragt",
       "backlog": "Geplanter Export: Es ist noch ein Rückstand übrig, daher startet der nächste Lauf sofort",
       "retry": "Geplanter Export: Anfrage für {{name}} fehlgeschlagen, neuer Versuch in {{seconds}} s (Versuch {{attempt}}/{{max}})",
       "runStarted": "Geplanter Export {{name}}: Lauf {{number}} gestartet",

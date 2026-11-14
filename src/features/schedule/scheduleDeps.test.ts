@@ -104,6 +104,43 @@ describe('createRunDeps', () => {
       expect(await deps().listActiveThreads('g1', 'Raid')).toEqual([{ id: 't1', name: 'a', parentId: 'c1' }]);
     });
 
+    it('does not search each channel while the active list works', async () => {
+      discord.fetchActiveGuildThreads.mockReturnValue(ok({ threads: [] }));
+      discord.fetchPublicThreads.mockReturnValue(ok({ threads: [], has_more: false }));
+      discord.fetchPrivateThreads.mockReturnValue(ok({ threads: [] }));
+      const run = deps();
+      await run.listActiveThreads('g-ok', 'Raid');
+      await run.listArchivedThreads({ ...text, id: 'c-ok' }, false);
+      expect(discord.fetchForumThreadSearch).not.toHaveBeenCalled();
+    });
+
+    it('searches each text channel instead when Discord refuses the active list, and stops asking', async () => {
+      discord.fetchActiveGuildThreads.mockReturnValue(fail(403));
+      discord.fetchForumThreadSearch.mockReturnValue(ok({ threads: [{ id: 'act', parent_id: 'c4', last_message_id: '9' }], has_more: false }));
+      discord.fetchPublicThreads.mockReturnValue(ok({ threads: [], has_more: false }));
+      discord.fetchPrivateThreads.mockReturnValue(ok({ threads: [] }));
+      const target = { ...text, id: 'c4' };
+
+      const run = deps();
+      expect(await run.listActiveThreads('g-refused', 'Raid')).toEqual([]);
+      expect((await run.listArchivedThreads(target, false)).map((t) => t.id)).toEqual(['act']);
+      expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
+        payload: expect.objectContaining({ level: 'info', message: expect.stringContaining('does not list the active threads of Raid') }),
+      }));
+
+      // A later run in the same session searches without asking again.
+      const next = deps();
+      expect(await next.listActiveThreads('g-refused', 'Raid')).toEqual([]);
+      await next.listArchivedThreads(target, false);
+      expect(discord.fetchActiveGuildThreads).toHaveBeenCalledTimes(1);
+      expect(discord.fetchForumThreadSearch).toHaveBeenCalledTimes(2);
+    });
+
+    it('still stops on an expired sign in from the active list', async () => {
+      discord.fetchActiveGuildThreads.mockReturnValue(fail(401));
+      await expect(deps().listActiveThreads('g-401', 'Raid')).rejects.toBeInstanceOf(SignInExpired);
+    });
+
     it('pages a forum\'s posts when backfilling, one page otherwise', async () => {
       discord.fetchForumThreadSearch
         .mockReturnValueOnce(ok({ threads: [{ id: 'p1', parent_id: 'f1' }], has_more: true }))

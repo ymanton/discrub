@@ -40,6 +40,13 @@ const FORUM_PAGE = 25;
 /** Channels where the archived private threads endpoint answered 403 (no Manage Threads); asked once per session. */
 const noManageThreads = new Set<string>();
 
+/**
+ * Servers where Discord refused the active threads list (403). Discord's own
+ * client never asks for it; for an account that is not a bot it can answer
+ * 403 even on a server the account owns. Asked once per session.
+ */
+const noActiveThreadList = new Set<string>();
+
 export const toScheduleThread = (channel: Channel): ScheduleThread => ({
   id: channel.id,
   name: channel.name || channel.id,
@@ -55,6 +62,8 @@ export function createRunDeps(
   token: string,
 ): RunDeps<Message> {
   const discord = getDiscordService();
+  /** This run could not list active threads, so each text channel searches its own. */
+  let searchEachChannel = false;
 
   const pace = async (): Promise<void> => {
     const { delayMs } = calculateRandomDelay(selectSearchDelay(getState()), selectDelayModifier(getState()));
@@ -92,6 +101,20 @@ export function createRunDeps(
       }));
       found.push(...page.threads.map(toScheduleThread));
       if (!all || !page.has_more || page.threads.length === 0) return found;
+    }
+  };
+
+  /**
+   * A text channel's threads from the search the threads browser uses, active
+   * and archived together. Only a fallback, so a failure here never skips the
+   * channel; an expired sign in or a cancel still stops the run.
+   */
+  const searchChannelThreads = async (target: ScheduleTarget, all: boolean): Promise<ScheduleThread[]> => {
+    try {
+      return await listForumPosts(target, all);
+    } catch (error) {
+      if (error instanceof SignInExpired || (error instanceof ApiFailure && error.reason === 'cancelled')) throw error;
+      return [];
     }
   };
 
@@ -163,12 +186,29 @@ export function createRunDeps(
     now: () => Date.now(),
     listMessages: (channelId, after, name) =>
       request(name, () => discord.fetchMessageData(token, after, channelId, QueryStringParam.AFTER)),
-    listActiveThreads: async (guildId, name) =>
-      (await request(name, () => discord.fetchActiveGuildThreads(token, guildId))).threads.map(toScheduleThread),
+    listActiveThreads: async (guildId, name) => {
+      if (noActiveThreadList.has(guildId)) {
+        searchEachChannel = true;
+        return [];
+      }
+      try {
+        return (await request(name, () => discord.fetchActiveGuildThreads(token, guildId))).threads.map(toScheduleThread);
+      } catch (error) {
+        if (error instanceof SignInExpired || (error instanceof ApiFailure && error.reason === 'cancelled')) throw error;
+        // Not a skip: the threads are still found channel by channel.
+        searchEachChannel = true;
+        if (error instanceof ApiFailure && error.reason === '403') {
+          noActiveThreadList.add(guildId);
+          dispatch(addStatusEntry({ level: 'info', message: t('status.schedule.noActiveThreadList', { name }) }));
+        }
+        return [];
+      }
+    },
     listArchivedThreads: async (target, all) => {
       if (FORUM_TYPES.includes(target.type)) return listForumPosts(target, all);
+      const searched = searchEachChannel ? await searchChannelThreads(target, all) : [];
       const [pub, priv] = [await listPublicArchived(target, all), await listPrivateArchived(target, all)];
-      return [...pub, ...priv];
+      return [...searched, ...pub, ...priv];
     },
     openSink: (zipName): RunSink => {
       const zip = new StreamingZipService(zipName, buildZipOptions(getState, dispatch));
