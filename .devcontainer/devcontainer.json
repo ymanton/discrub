@@ -16,6 +16,10 @@
   // Also seed .env from the example (without overwriting) so VITE_DISCORD_TOKEN can be set.
   "postCreateCommand": "sudo chown node:node node_modules ~/.claude && npm install --legacy-peer-deps && (cp -n .env.example .env || true)",
 
+  "appPort": [
+    "3000:3000",
+    "6006:6006"
+  ],
   "forwardPorts": [3000, 6006],
   "portsAttributes": {
     "3000": { "label": "Vite dev server", "onAutoForward": "openBrowser" },
