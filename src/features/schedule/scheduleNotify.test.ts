@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 
 let extensionMode = false;
 vi.mock('@/extension/messaging', () => ({ isExtensionMode: () => extensionMode }));
@@ -57,7 +57,7 @@ describe('alertsForRun', () => {
 
 describe('notifications', () => {
   const sendMessage = vi.fn();
-  const NotificationMock = vi.fn() as unknown as typeof Notification & { permission: NotificationPermission; requestPermission: ReturnType<typeof vi.fn> };
+  const NotificationMock = vi.fn() as unknown as Omit<typeof Notification, 'permission' | 'requestPermission'> & { permission: NotificationPermission; requestPermission: Mock<[], Promise<NotificationPermission>> };
 
   beforeEach(() => {
     extensionMode = false;
@@ -65,7 +65,7 @@ describe('notifications', () => {
     vi.stubGlobal('chrome', { runtime: { sendMessage } });
     (NotificationMock as unknown as ReturnType<typeof vi.fn>).mockReset();
     NotificationMock.permission = 'default';
-    NotificationMock.requestPermission = vi.fn(async () => 'granted');
+    NotificationMock.requestPermission = vi.fn(async (): Promise<NotificationPermission> => 'granted');
     vi.stubGlobal('Notification', NotificationMock);
   });
 

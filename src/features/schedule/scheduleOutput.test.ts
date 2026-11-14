@@ -136,7 +136,7 @@ describe('scheduleOutput', () => {
       await writer.close();
       expect(await output.finalize(manifest())).toBe(true);
 
-      expect([...sink.files.keys()].at(-1)).toBe('manifest.json');
+      expect([...sink.files.keys()].pop()).toBe('manifest.json');
       expect(JSON.parse(sink.files.get('manifest.json')!).format).toBe(MANIFEST_FORMAT);
       expect(sink.finalized).toBe(true);
     });

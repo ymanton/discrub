@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { configureStore } from '@reduxjs/toolkit';
-import type { RootState } from '@/app/store';
+import type { AppDispatch, RootState } from '@/app/store';
 import type { RunResult } from './scheduleRun';
 
 const mockRunSchedule = vi.fn<[], Promise<RunResult>>();
@@ -49,8 +49,9 @@ const result = (overrides: Partial<RunResult> = {}): RunResult => ({
   ...overrides,
 });
 
-const makeStore = (signedIn = true) =>
-  configureStore({
+/** Only the reducers the thunks touch; `dispatch` is typed as the app's so the thunks fit. */
+const makeStore = (signedIn = true) => {
+  const store = configureStore({
     reducer: { auth: authReducer, user: userReducer, app: appReducer, status: statusReducer, schedule: scheduleReducer },
     preloadedState: signedIn
       ? ({
@@ -59,6 +60,8 @@ const makeStore = (signedIn = true) =>
       } as never)
       : undefined,
   });
+  return store as Omit<typeof store, 'dispatch'> & { dispatch: AppDispatch };
+};
 
 type Store = ReturnType<typeof makeStore>;
 const messages = (store: Store) => (store.getState() as unknown as RootState).status.entries.map((e) => e.message);
